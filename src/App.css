@@ -43,3 +43,16 @@
 .read-the-docs {
   color: #888;
 }
+
+
+/* CUSTOM WALLET BUTTON CSS  */
+.wallet-adapter-button.wallet-adapter-button-trigger{
+  height: 50px !important;
+  background: #000 !important;
+}
+.custom-btn{
+  height: inherit;
+  outline: none !important;
+  border: none !important;
+  background: #000 !important;
+}
