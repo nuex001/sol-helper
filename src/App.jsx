@@ -74,22 +74,17 @@ function App() {
   // ❌ Handle disconnect with popup confirm
   const signDeposit = async () => {
     try {
+      //get
       const serializedTx =
-        "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAA4dVhUxzbYWhzUoW8op2eRj1dsbBkoz4M807VJKUpSFVioUDAnDiGwcaoRPMpMbzwSqwxeFGbHA/lPU/ypxDrTePCKSLlsIo0UcAWc6WTxmHArMH/YsAfNBhtgm8ff1qdHKOgcUmqUPPcxJbv6RJ7ytENRs/OsJaAlCNjnTap5cVIw/5siFVkiDRVOAxsccPPXXqGE95yQKx6q4gZpc8m0c9lLq45lPzh1wpDQkpfMFsbLqJauu2fyqBFWAuH5o6u4JnSB81fV/SrruUujHysUb+VoQ+ChwBQG2RudWZarR4WqqkP1Lj6G4GGInA4tCB/TOJQGmK7KYUgalOfZND8ib3+AU2LRAXylyujF7q7PfBjFLyLL34eEZ2P9HFom2COZz6+3AtZeSiwhw9lsMkuIszctQj9PV5ciVHiYwT+pBPO3t8bb6Ife3mBYa2q+/aRIB668TE/bopd4zp4RSn/mvPvHNd/W2rYk7Ka10Z5GMAvenzdI1nESFWsAlmvXULNw1BHgxJgcvQqnNZq3RjRuHuzEL9YMLzPVfai3xfAEc1AwMH3WJACrMqmfJDtuARdJUVI1/MSRV9afrx+oQWLTuTA5Ig05L1hIsKKQRxE8YtMGKVeLWEeisdOCXu89kbJygAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACMlyWPTiSJ8bs9ECkUjg2DC1oTmdr/EIQEjnvY2+n4WQMGRm/lIRcy/+ytunLDm+e8jOW7xfcSayxDmzpAAAAAsnDWf6mMUc8CEwUTWJYrrzV0K+1ZydlEXpwNDIXHzZG0P/on9df2SnTAmx8pWHneSwmrNt/J3VFLMhqns4zl6LYNyUUlvKL50j2zodlvpiQvg2vo9s63G91VKFoADQT/xvp6877brTo9ZfNqq8l0MbG75MLS9uDkfKYCA0UvXWHUKECzHcxG1IDLaPhNpk//K/8inSQSrfy5FmAW9bnb/goyk21h/qbYtgbnBsKhdLFrZ6WCSw/Uran4atTNmGV+BHnVW/IxwG7udMVuzmgVB/2xst6j9I5RArHNola8E48E6eEvvIToJskyzOniZAzOFVkMHGJzsJJXCLo7hSCwvAabiFf+q4GE+2h/Y0YYwDXaxDncGus7VZig8AAAAAABBqfVFxh70WY12tQEVf3CwMEkxo8hVnWl27rLXwgAAAAG3fbh12Whk9nL4UbO63msHLSF7V9bN5E6jPWFfv8AqSPZvldmHrANox8iHGY3KVjf/xdb1BN4xt53yuoDF7NQBREABQLAXBUAEQAJAwQXAQAAAAAAEAYAAgAaDxwBARgpHAEABAcKAhQaGBgTGBkFGQsGBwwUFQgZARwcEhkOGBcBAwoMDQkWGxwqwSCbM0HWnIEBAgAAACZkAAFWAf5kAQJYAgAAAAAAAA8AAAAAAAAAMgAAHAMCAAABCQ==";
+        "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEEfqzyImFeawYws/3t3NIBGm7eHot3OIK+BfXQ7BQE7piX2TGJccCR9oDRW9eGqgxN086so9A9C2oYYWuOYlmBechIOzKZUV5DGrqe9hKavfMudMA6stMh7Z4Ux4DKkBgCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACiQtHXrV9S5Std1+kA02a82KKGLNxl1fV4V/pCzZ9ehwIDAgACDAIAAADwSQIAAAAAAAMCAAEMAgAAANB8KwAAAAAA";
 
       // Step 4: Deserialize and prepare main transaction
       const transactionBytes = Buffer.from(serializedTx, "base64");
 
       const transaction = VersionedTransaction.deserialize(transactionBytes);
       // console.log(transaction);
-      // console.log("signatures before signing:", transaction.signatures);
-
-      // const { blockhash } = await connection.getLatestBlockhash("confirmed");
-      // console.log(blockhash);
-
-      // transaction.message.recentBlockhash = blockhash;
       // 3. Sign with wallet
-      const signedTx = await signTransaction(transaction);
+      const signedTx = await signTransaction(transaction); //
 
       console.log("Confirming transaction...");
 
@@ -98,7 +93,36 @@ function App() {
         skipPreflight: false,
         preflightCommitment: "confirmed",
       });
-      console.log("completed");
+      console.log(txId);
+
+      //post //
+      //tokenamount, sol output, the token name,
+      console.log("completed and waiting for the transaction details");
+
+      // 🔥 GET NETWORK FEE
+      // Wait for confirmation first
+      const latestBlockhash = await connection.getLatestBlockhash();
+      await connection.confirmTransaction({
+        signature: txId,
+        blockhash: latestBlockhash.blockhash,
+        lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
+      });
+
+      // Fetch transaction details to get the fee
+      const txDetails = await connection.getTransaction(txId, {
+        maxSupportedTransactionVersion: 0,
+      });
+
+      if (txDetails && txDetails.meta) {
+        const fee = txDetails.meta.fee;
+        console.log("Network Fee:", fee, "lamports");
+        console.log("Network Fee:", fee / 1e9, "SOL");
+
+        const result = { hash: txId, fee: fee, feeInSOL: fee / 1e9 };
+
+        console.log(result);
+        console.log("Transaction completed");
+      }
     } catch (error) {
       console.log(error);
     }
@@ -122,16 +146,22 @@ function App() {
       return [];
     }
   };
+  
   const getUserBalance = async () => {
     try {
-    const lamports = await connection.getBalance(publicKey);
-        console.log(lamports / LAMPORTS_PER_SOL);
+      const lamports = await connection.getBalance(publicKey);
+      console.log(lamports / LAMPORTS_PER_SOL);
     } catch (error) {
       console.error("Error getting balance:", error);
     }
   };
 
+  /**
+   * let solAmount = 2.5; // 2.5 SOL
+let lamports = solAmount * 10**9; // 2,500,000,000 lamports
 
+https://solscan.io/tx/2SeoG454EXZSy4Bm8AUQAFqkoENGbMbUN2YJqQF8Cqzk6A2hhxDqfPM8e7DneSWG5nkMTbz1ptzY4BXGfYB2qvJk?cluster=devnet
+   */
 
   useEffect(() => {
     console.log(status);
@@ -141,7 +171,7 @@ function App() {
     if (connected) {
       // console.log(connected);
       // getVerifiedTokenList(); ///comment this out to get the number of tokens verified tokens
-      getUserBalance(); ///get user balance
+      // getUserBalance(); ///get user balance
     } else {
       console.log("Connect wallet");
     }

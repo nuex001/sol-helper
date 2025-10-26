@@ -17,15 +17,16 @@ window.Buffer = Buffer; //because vite does not include buffer
 export const SolanaProvider = ({ children }) => {
   // The network can be set to 'devnet', 'testnet', or 'mainnet-beta'
   // Use Devnet
-  const network = WalletAdapterNetwork.Devnet; //devnet(testnet)
+  // const network = WalletAdapterNetwork.Devnet; //devnet(testnet)
 
   // Default Devnet RPC
-  const endpoint = useMemo(() => clusterApiUrl(network), [network]);
+  // const endpoint = useMemo(() => clusterApiUrl(network), [network]);
 
-  // const endpoint = useMemo(
-  //   () => `https://rpc.helius.xyz/?api-key=${import.meta.env.VITE_HELIUS_API_KEY}`,
-  //   []
-  // );
+  const endpoint = useMemo(
+    () =>
+      `https://rpc.helius.xyz/?api-key=${import.meta.env.VITE_HELIUS_API_KEY}`,
+    []
+  ); //for mainnet
 
   return (
     <ConnectionProvider endpoint={endpoint}>
@@ -37,7 +38,7 @@ export const SolanaProvider = ({ children }) => {
 };
 
 createRoot(document.getElementById("root")).render(
-    <SolanaProvider>
-      <App />
-    </SolanaProvider>
+  <SolanaProvider>
+    <App />
+  </SolanaProvider>
 );
