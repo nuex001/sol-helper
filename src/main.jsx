@@ -16,8 +16,6 @@ import { Buffer } from "buffer";
 // Import wallet adapters
 import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
 import { SolflareWalletAdapter } from "@solana/wallet-adapter-solflare";
-import { TrustWalletAdapter } from "@solana/wallet-adapter-trust";
-import { CoinbaseWalletAdapter } from "@solana/wallet-adapter-coinbase";
 
 window.Buffer = Buffer;
 
@@ -33,8 +31,6 @@ export const SolanaProvider = ({ children }) => {
     () => [
       new PhantomWalletAdapter(),
       new SolflareWalletAdapter(),
-      new TrustWalletAdapter(),
-      new CoinbaseWalletAdapter(),
     ],
     []
   );
